@@ -1,8 +1,8 @@
 <?php
 
-require_once 'TextGenerator/Part.php';
+namespace TextGenerator;
 
-class TextGenerator_XorPart extends TextGenerator_Part
+class XorPart extends Part
 {
     /**
      * Массив шаблонов для генерации
@@ -16,7 +16,7 @@ class TextGenerator_XorPart extends TextGenerator_Part
      */
     private $currentTemplateKey = 0;
 
-    public function __construct($template)
+    public function __construct($template, array $options = array())
     {
         $template = $this->parseTemplate($template);
 
@@ -35,6 +35,11 @@ class TextGenerator_XorPart extends TextGenerator_Part
         }
     }
 
+    /**
+     * Returns current template value
+     *
+     * @return string
+     */
     public function getCurrentTemplate()
     {
         $templateArray = $this->template;

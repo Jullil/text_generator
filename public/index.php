@@ -7,10 +7,23 @@ set_include_path(
     get_include_path() .
     PATH_SEPARATOR . LIBRARY_PATH
 );
-?>
 
+require_once LIBRARY_PATH . '/TextGenerator/Part.php';
+require_once LIBRARY_PATH . '/TextGenerator/XorPart.php';
+require_once LIBRARY_PATH . '/TextGenerator/OrPart.php';
+require_once LIBRARY_PATH . '/TextGenerator/TextGenerator.php';
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seo generator demo</title>
+    <meta charset='utf-8'>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+</head>
+<body>
 <form action="" method="POST">
-    <textarea name="template" id="template" cols="100" rows="10">Генератор текста{ -|:} {скрипт, предназначенный|программа, предназначенная} для [+ и +генерации|создания] уникальных [ +, +описаний|названий|{анкоров|ссылок}].</textarea>
+    <label><textarea name="template" id="template" cols="100" rows="10">Генератор текста{ -|:} {скрипт, предназначенный|программа, предназначенная} для [+ и +генерации|создания] уникальных [ +, +описаний|названий|{анкоров|ссылок}].</textarea></label>
     <br>
     <input type="submit" value="Генерить!"/>
 </form>
@@ -19,10 +32,8 @@ set_include_path(
 if (isset($_POST['template'])) {
     $template = $_POST['template'];
 
-    require_once 'TextGenerator.php';
-
     $t         = microtime(true);
-    $generator = TextGenerator::factory($template);
+    $generator = \TextGenerator\TextGenerator::factory($template);
     for ($i = 0; $i < 5000; $i++) {
         echo '<br /><br />';
         echo $generator->generate();
@@ -32,5 +43,5 @@ if (isset($_POST['template'])) {
     echo microtime(true) - $t;
 }
 ?>
-
-
+</body>
+</html>
