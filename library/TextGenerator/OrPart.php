@@ -137,6 +137,11 @@ class OrPart extends XorPart
         $this->currentTemplateKeySequence = $nextSequence;
     }
 
+    public function isCurrentTemplateIsLast()
+    {
+        return 0;
+    }
+
     /**
      * Get template (random)
      *

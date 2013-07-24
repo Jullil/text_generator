@@ -9,6 +9,50 @@ use TextGenerator\TextGenerator;
 
 class OrPartTest extends TestCase
 {
+    /**
+     * @group testGenerateAllPossibleVariants
+     */
+    public function testGenerateAllPossibleVariants()
+    {
+        $str = "1|2|[3|4]";
+        $part = new OrPart($str);
+
+        $this->assertEquals('1 2 3 4', $part->generate());
+        $this->assertEquals('1 2 4 3', $part->generate());
+        $this->assertEquals('1 3 4 2', $part->generate());
+        $this->assertEquals('1 4 3 2', $part->generate());
+    }
+
+    /**
+     * @group a
+     */
+    public function testGetNextSequence()
+    {
+        $str = "1|2|[3|4]";
+        $part = new OrPart($str);
+
+        $firstSequence = range(0, 10);
+
+        $array = array();
+        $t = microtime(true);
+        for ($i = 0; $i < 2000000; $i++) {
+            $sequence = $part->getNextSequence($firstSequence);
+            $key = implode('', $sequence);
+            if (!isset($array[$key])) {
+                $array[$key] = $sequence;
+                $firstSequence = $sequence;
+            } else {
+                echo "YO!\n";
+                break;
+            }
+            //print_r($part->getNextSequence($firstSequence));
+            //echo "\n";
+        }
+        echo count($array) . "\n";
+        print_r(microtime(true) - $t);
+        die;
+    }
+    
     public function testGetRandomTemplate()
     {
         $str = "1|2|3|4|5|6";
@@ -67,7 +111,5 @@ class OrPartTest extends TestCase
         }
         // wrong :(
         $this->assertEquals(120, count($result));
-
-
     }
 }

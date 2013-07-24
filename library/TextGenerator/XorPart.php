@@ -36,6 +36,16 @@ class XorPart extends Part
     }
 
     /**
+     * Является текущий шаблон последним?
+     *
+     * @return bool
+     */
+    public function isCurrentTemplateIsLast()
+    {
+        return $this->currentTemplateKey == (count($this->template) - 1);
+    }
+
+    /**
      * Returns current template value
      *
      * @return string
