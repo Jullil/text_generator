@@ -117,6 +117,15 @@ class Part
     }
 
     /**
+     * Является текущий шаблон последним?
+     * @return bool
+     */
+    public function isCurrentTemplateLast()
+    {
+        return true;
+    }
+
+    /**
      * Получить текущий шаблон, по которому будет сгенерен текст
      * @return string
      */

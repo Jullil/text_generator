@@ -6,7 +6,6 @@ class OrPart extends XorPart
 {
     /**
      * Word delimiter
-     *
      * @var string
      */
     private $delimiter = ' ';
@@ -27,7 +26,7 @@ class OrPart extends XorPart
 
     public function __construct($template, array $options = array())
     {
-        $template        = preg_replace_callback('#^\+([^\+]+)\+#', function ($match) use (&$delimiter) {
+        $template = preg_replace_callback('#^\+([^\+]+)\+#', function ($match) use (&$delimiter) {
             $delimiter = $match[1];
             return '';
         }, $template);
@@ -38,9 +37,11 @@ class OrPart extends XorPart
 
         parent::__construct($template, $options);
 
-        $firstSequence                    = range(0, count($this->template) - 1);
+        $firstSequence = range(0, count($this->template) - 1);
+
         $this->sequenceArray[0]           = $firstSequence;
         $this->currentTemplateKeySequence = $firstSequence;
+        $this->templateCount              = $this->factorial(count($firstSequence));
     }
 
     /**
@@ -63,6 +64,7 @@ class OrPart extends XorPart
         //Если k невозможно определить, то это конец последовательности, начинаем сначала
         if (is_null($k)) {
             //На колу мочало, начинай с начала!
+            $this->currentTemplateKey = 0;
             return reset($this->sequenceArray);
         }
         //Ищем максимальный l-индекс, для которого a[k] < a[l]
@@ -75,9 +77,10 @@ class OrPart extends XorPart
         //Если k невозможно определить (что весьма странно, k определили же), то начинаем сначала
         if (is_null($l)) {
             //На колу мочало, начинай с начала!
+            $this->currentTemplateKey = 0;
             return reset($this->sequenceArray);
         }
-        $nextSequence     = $currentSequence;
+        $nextSequence = $currentSequence;
         //Меняем местами a[k] и a[l]
         $nextSequence[$k] = $currentSequence[$l];
         $nextSequence[$l] = $currentSequence[$k];
@@ -99,7 +102,6 @@ class OrPart extends XorPart
 
     /**
      * Returns count of variants
-     *
      * @return int
      */
     public function getCount()
@@ -112,14 +114,15 @@ class OrPart extends XorPart
      * Factorial
      *
      * @param $x
+     *
      * @return int
      */
-    private  function factorial($x)
+    private function factorial($x)
     {
         if ($x === 0) {
             return 1;
         } else {
-            return $x*$this->factorial($x-1);
+            return $x * $this->factorial($x - 1);
         }
     }
 
@@ -128,7 +131,7 @@ class OrPart extends XorPart
      */
     public function next()
     {
-        //print_r($this->sequenceArray);
+        $this->currentTemplateKey++;
         $key = implode('', $this->currentTemplateKeySequence);
         if (!isset($this->sequenceArray[$key]) || !($nextSequence = $this->sequenceArray[$key])) {
             $nextSequence              = $this->getNextSequence($this->currentTemplateKeySequence);
@@ -137,14 +140,8 @@ class OrPart extends XorPart
         $this->currentTemplateKeySequence = $nextSequence;
     }
 
-    public function isCurrentTemplateIsLast()
-    {
-        return 0;
-    }
-
     /**
      * Get template (random)
-     *
      * @return string
      */
     protected function getRandomTemplate()
@@ -160,7 +157,6 @@ class OrPart extends XorPart
         }
 
         return implode($this->delimiter, $templateKeySequence);
-
     }
 
     public function getCurrentTemplate()

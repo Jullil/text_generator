@@ -14,7 +14,13 @@ class XorPart extends Part
      * Текущий ключ массива шаблонов
      * @var int
      */
-    private $currentTemplateKey = 0;
+    protected $currentTemplateKey = 0;
+
+    /**
+     * Количество вариантов шаблонов для генерации
+     * @var int
+     */
+    protected $templateCount = 0;
 
     public function __construct($template, array $options = array())
     {
@@ -22,6 +28,7 @@ class XorPart extends Part
 
         $this->template         = explode('|', $template['template']);
         $this->replacementArray = $template['replacement_array'];
+        $this->templateCount    = count($this->template);
     }
 
     /**
@@ -37,23 +44,26 @@ class XorPart extends Part
 
     /**
      * Является текущий шаблон последним?
-     *
      * @return bool
      */
-    public function isCurrentTemplateIsLast()
+    public function isCurrentTemplateLast()
     {
-        return $this->currentTemplateKey == (count($this->template) - 1);
+        return $this->currentTemplateKey == ($this->templateCount - 1);
+    }
+
+    public function getCurrentTemplateKey()
+    {
+        return $this->currentTemplateKey;
     }
 
     /**
      * Returns current template value
-     *
      * @return string
      */
     public function getCurrentTemplate()
     {
         $templateArray = $this->template;
-        $templateKey = $this->currentTemplateKey;
+        $templateKey   = $this->currentTemplateKey;
 
         return $templateArray[$templateKey];
     }
@@ -61,7 +71,7 @@ class XorPart extends Part
     protected function getRandomTemplate()
     {
         $templateArray = $this->template;
-        $templateKey = mt_rand(0, count($this->template) - 1);
+        $templateKey   = mt_rand(0, $this->templateCount - 1);
         return $templateArray[$templateKey];
     }
 

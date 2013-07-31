@@ -6,6 +6,7 @@ require_once __DIR__ . '/TestCase.php';
 
 use TextGenerator\OrPart;
 use TextGenerator\TextGenerator;
+use TextGenerator\XorPart;
 
 class OrPartTest extends TestCase
 {
@@ -23,39 +24,9 @@ class OrPartTest extends TestCase
         $this->assertEquals('1 4 3 2', $part->generate());
     }
 
-    /**
-     * @group a
-     */
-    public function testGetNextSequence()
-    {
-        $str = "1|2|[3|4]";
-        $part = new OrPart($str);
-
-        $firstSequence = range(0, 10);
-
-        $array = array();
-        $t = microtime(true);
-        for ($i = 0; $i < 2000000; $i++) {
-            $sequence = $part->getNextSequence($firstSequence);
-            $key = implode('', $sequence);
-            if (!isset($array[$key])) {
-                $array[$key] = $sequence;
-                $firstSequence = $sequence;
-            } else {
-                echo "YO!\n";
-                break;
-            }
-            //print_r($part->getNextSequence($firstSequence));
-            //echo "\n";
-        }
-        echo count($array) . "\n";
-        print_r(microtime(true) - $t);
-        die;
-    }
-    
     public function testGetRandomTemplate()
     {
-        $str = "1|2|3|4|5|6";
+        $str  = "1|2|3|4|5|6";
         $part = new OrPart($str);
         $this->assertNotEquals($part->generate(true), $part->generate(true));
 
@@ -64,26 +35,29 @@ class OrPartTest extends TestCase
         $this->assertEquals('1 2 3 4 6 5', $part->generate());
     }
 
+    /**
+     * @group testGetCount
+     */
     public function testGetCount()
     {
-        $str = "1|2";
+        $str  = "1|2";
         $part = new OrPart($str);
         $this->assertEquals(2, $part->getCount());
 
-        $str = "1|2|3";
+        $str  = "1|2|3";
         $part = new OrPart($str);
         $this->assertEquals(6, $part->getCount());
 
-        $str = "1|2|3|4";
+        $str  = "1|2|3|4";
         $part = new OrPart($str);
         $this->assertEquals(24, $part->getCount());
 
-        $str = "+ and +1|2|3|4|5";
+        $str  = "+ and +1|2|3|4|5";
         $part = new OrPart($str);
         $this->assertEquals(120, $part->getCount());
         $part->next();
         $result = array();
-        $i = 0;
+        $i      = 0;
         while ($item = $part->getCurrentTemplate()) {
             $result[$item] = true;
             $part->next();
@@ -91,17 +65,16 @@ class OrPartTest extends TestCase
                 break;
             }
         }
-
         $this->assertEquals(120, count($result));
 
-        $str = "+ and +1|2|3|4|{5|6}";
+        $str  = "+ and +1|2|3|4|{5|6}";
         $part = new OrPart($str);
 
         $part->getCount(true);
         $this->assertEquals(240, $part->getCount());
         $part->next();
         $result = array();
-        $i = 0;
+        $i      = 0;
         while ($item = $part->getCurrentTemplate()) {
             $result[$item] = true;
             $part->next();
