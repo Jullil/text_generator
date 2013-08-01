@@ -22,6 +22,12 @@ class OrPart extends XorPart
      */
     private $sequenceArray = array();
 
+    /**
+     * Массив последовательностей и их ключей
+     * @var array
+     */
+    private $sequenceKeyArray = array();
+
     private $similarTemplateCount = 0;
 
     public function __construct($template, array $options = array())
@@ -39,9 +45,11 @@ class OrPart extends XorPart
 
         $firstSequence = range(0, count($this->template) - 1);
 
-        $this->sequenceArray[0]           = $firstSequence;
-        $this->currentTemplateKeySequence = $firstSequence;
-        $this->templateCount              = $this->factorial(count($firstSequence));
+        $this->sequenceArray[0]                            = $firstSequence;
+        $this->currentTemplateKey                          = 0;
+        $this->currentTemplateKeySequence                  = $firstSequence;
+        $this->sequenceKeyArray[$this->currentTemplateKey] = $this->currentTemplateKeySequence;
+        $this->templateCount                               = $this->factorial(count($firstSequence));
     }
 
     /**
@@ -64,7 +72,7 @@ class OrPart extends XorPart
         //Если k невозможно определить, то это конец последовательности, начинаем сначала
         if (is_null($k)) {
             //На колу мочало, начинай с начала!
-            $this->currentTemplateKey = 0;
+            //$this->currentTemplateKey = 0;
             return reset($this->sequenceArray);
         }
         //Ищем максимальный l-индекс, для которого a[k] < a[l]
@@ -77,7 +85,7 @@ class OrPart extends XorPart
         //Если k невозможно определить (что весьма странно, k определили же), то начинаем сначала
         if (is_null($l)) {
             //На колу мочало, начинай с начала!
-            $this->currentTemplateKey = 0;
+            //$this->currentTemplateKey = 0;
             return reset($this->sequenceArray);
         }
         $nextSequence = $currentSequence;
@@ -136,8 +144,11 @@ class OrPart extends XorPart
         if (!isset($this->sequenceArray[$key]) || !($nextSequence = $this->sequenceArray[$key])) {
             $nextSequence              = $this->getNextSequence($this->currentTemplateKeySequence);
             $this->sequenceArray[$key] = $nextSequence;
+        } else {
+            $this->currentTemplateKey = $this->sequenceKeyArray[$key];
         }
         $this->currentTemplateKeySequence = $nextSequence;
+        $this->sequenceKeyArray[$key]     = $this->currentTemplateKey;
     }
 
     /**

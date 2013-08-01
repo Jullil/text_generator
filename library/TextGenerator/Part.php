@@ -21,6 +21,12 @@ class Part
      */
     protected $replacementArray;
 
+    /**
+     * Текущий ключ массива шаблонов
+     * @var int
+     */
+    protected $currentTemplateKey = 0;
+
     private $options = [
         self::OPTION_STRIP_WHITE_SPACE => true,
         self::OPTION_FILTER_EMPTY_VALUES => true,
@@ -80,13 +86,21 @@ class Part
 
         $replacementArrayTmp = array();
         $searchArray         = array();
+        $isGoNext = true;
+
         foreach ($replacementArray as $key => $value) {
             $searchArray[]         = $key;
-            $replacementArrayTmp[] = $value->generate($isRandom);
+            if (!$value->isCurrentTemplateLast()) {
+                $isGoNext = false;
+            }
+            $r = $value->generate($isRandom);
+            $replacementArrayTmp[] = $r;
         }
         $replacementArray = $replacementArrayTmp;
 
-        $this->next();
+        if ($isGoNext) {
+            $this->next();
+        }
 
         if ($searchArray) {
             return str_replace($searchArray, $replacementArray, $template);
@@ -123,6 +137,11 @@ class Part
     public function isCurrentTemplateLast()
     {
         return true;
+    }
+
+    public function getCurrentTemplateKey()
+    {
+        return $this->currentTemplateKey;
     }
 
     /**

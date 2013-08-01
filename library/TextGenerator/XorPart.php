@@ -11,12 +11,6 @@ class XorPart extends Part
     protected $template;
 
     /**
-     * Текущий ключ массива шаблонов
-     * @var int
-     */
-    protected $currentTemplateKey = 0;
-
-    /**
      * Количество вариантов шаблонов для генерации
      * @var int
      */
@@ -51,10 +45,6 @@ class XorPart extends Part
         return $this->currentTemplateKey == ($this->templateCount - 1);
     }
 
-    public function getCurrentTemplateKey()
-    {
-        return $this->currentTemplateKey;
-    }
 
     /**
      * Returns current template value
