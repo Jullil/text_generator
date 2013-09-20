@@ -14,13 +14,19 @@ class OrPart extends XorPart
      * Последовательность, в которой будут следовать фразы шаблона при генерации
      * @var array
      */
-    private $currentTemplateKeySequence;
+    private $currentSequence;
+
+    /**
+     * Последовательность, которая будет последней
+     * @var array
+     */
+    private $lastSequence;
 
     /**
      * Массив последовательностей слов, из которых будут формироваться фразы
      * @var array
      */
-    private $sequenceArray = array();
+    private $sequenceLinkedArray = array();
 
     /**
      * Массив последовательностей и их ключей
@@ -44,11 +50,14 @@ class OrPart extends XorPart
         parent::__construct($template, $options);
 
         $firstSequence = range(0, count($this->template) - 1);
+        $lastSequence  = array_reverse($firstSequence);
 
-        $this->sequenceArray[0]                            = $firstSequence;
+        $this->currentSequence                             = $firstSequence;
+        $this->lastSequence                                = $lastSequence;
+
+        $this->sequenceLinkedArray[0]                      = $firstSequence;
         $this->currentTemplateKey                          = 0;
-        $this->currentTemplateKeySequence                  = $firstSequence;
-        $this->sequenceKeyArray[$this->currentTemplateKey] = $this->currentTemplateKeySequence;
+        $this->sequenceKeyArray[$this->currentTemplateKey] = $firstSequence;
         $this->templateCount                               = $this->factorial(count($firstSequence));
     }
 
@@ -73,7 +82,7 @@ class OrPart extends XorPart
         if (is_null($k)) {
             //На колу мочало, начинай с начала!
             //$this->currentTemplateKey = 0;
-            return reset($this->sequenceArray);
+            return null;
         }
         //Ищем максимальный l-индекс, для которого a[k] < a[l]
         $l = null;
@@ -86,7 +95,7 @@ class OrPart extends XorPart
         if (is_null($l)) {
             //На колу мочало, начинай с начала!
             //$this->currentTemplateKey = 0;
-            return reset($this->sequenceArray);
+            return null;
         }
         $nextSequence = $currentSequence;
         //Меняем местами a[k] и a[l]
@@ -115,7 +124,7 @@ class OrPart extends XorPart
     public function getCount()
     {
         $repeats = $this->getReplacementCount();
-        return $this->factorial(count(reset($this->sequenceArray))) * $repeats;
+        return $this->factorial(count(reset($this->sequenceLinkedArray))) * $repeats;
     }
 
     /**
@@ -137,18 +146,21 @@ class OrPart extends XorPart
     /**
      * Смещает текущую последрвательность ключей массива шаблона на следующую
      */
-    public function next()
+    public function goNext()
     {
         $this->currentTemplateKey++;
-        $key = implode('', $this->currentTemplateKeySequence);
-        if (!isset($this->sequenceArray[$key]) || !($nextSequence = $this->sequenceArray[$key])) {
-            $nextSequence              = $this->getNextSequence($this->currentTemplateKeySequence);
-            $this->sequenceArray[$key] = $nextSequence;
+        $key = implode('', $this->currentSequence);
+        if (!isset($this->sequenceLinkedArray[$key]) || !($nextSequence = $this->sequenceLinkedArray[$key])) {
+            $nextSequence = $this->getNextSequence($this->currentSequence);
+            if (!$nextSequence) {
+                $nextSequence = reset($this->sequenceLinkedArray);
+            }
+            $this->sequenceLinkedArray[$key] = $nextSequence;
         } else {
             $this->currentTemplateKey = $this->sequenceKeyArray[$key];
         }
-        $this->currentTemplateKeySequence = $nextSequence;
-        $this->sequenceKeyArray[$key]     = $this->currentTemplateKey;
+        $this->currentSequence        = $nextSequence;
+        $this->sequenceKeyArray[$key] = $this->currentTemplateKey;
     }
 
     /**
@@ -160,6 +172,9 @@ class OrPart extends XorPart
         $randomSequence = range(0, count($this->template) - 1);
         shuffle($randomSequence);
         $templateKeySequence = $this->getNextSequence($randomSequence);
+        if (!$templateKeySequence) {
+            $templateKeySequence = reset($this->sequenceLinkedArray);
+        }
 
         $templateArray = $this->template;
         for ($i = 0, $count = count($templateKeySequence); $i < $count; $i++) {
@@ -172,7 +187,7 @@ class OrPart extends XorPart
 
     public function getCurrentTemplate()
     {
-        $templateKeySequence = $this->currentTemplateKeySequence;
+        $templateKeySequence = $this->currentSequence;
 
         $templateArray = $this->template;
         for ($i = 0, $count = count($templateKeySequence); $i < $count; $i++) {
@@ -181,5 +196,14 @@ class OrPart extends XorPart
         }
 
         return implode($this->delimiter, $templateKeySequence);
+    }
+
+    /**
+     * Является текущий шаблон последним?
+     * @return bool
+     */
+    public function isCurrentTemplateLast()
+    {
+        return $this->currentSequence == $this->lastSequence;
     }
 }

@@ -4,9 +4,11 @@ namespace TextGenerator;
 
 class Part
 {
-    const OPTION_STRIP_WHITE_SPACE   = 'strip_white_space';
+    const OPTION_STRIP_WHITE_SPACE = 'strip_white_space';
+
     const OPTION_FILTER_EMPTY_VALUES = 'filter_empty_values';
-    const OPTION_REMOVE_DUPLICATES   = 'remove_duplicates';
+
+    const OPTION_REMOVE_DUPLICATES = 'remove_duplicates';
 
     /**
      * Шаблон для генерации
@@ -27,15 +29,26 @@ class Part
      */
     protected $currentTemplateKey = 0;
 
+    /**
+     * Последний ключ массива шаблонов
+     * @var int
+     */
+    protected $lastTemplateKey = 0;
+
+    /**
+     * @var bool
+     */
+    protected $isAllowGoNext = false;
+
     private $options = [
-        self::OPTION_STRIP_WHITE_SPACE => true,
+        self::OPTION_STRIP_WHITE_SPACE   => true,
         self::OPTION_FILTER_EMPTY_VALUES => true,
-        self::OPTION_REMOVE_DUPLICATES => true
+        self::OPTION_REMOVE_DUPLICATES   => true
     ];
 
     /**
      * @param string $template - шаблон, по которому будет генерироваться текст
-     * @param array  $options
+     * @param array $options
      */
     public function __construct($template, array $options = array())
     {
@@ -77,6 +90,7 @@ class Part
     /**
      * Сгенерировать текст по текущему шаблону
      * @param bool $isRandom
+     *
      * @return string
      */
     public function generate($isRandom = false)
@@ -86,26 +100,34 @@ class Part
 
         $replacementArrayTmp = array();
         $searchArray         = array();
-        $isGoNext = true;
-
+        $isGoNext            = false;
         foreach ($replacementArray as $key => $value) {
-            $searchArray[]         = $key;
-            if (!$value->isCurrentTemplateLast()) {
+            $searchArray[] = $key;
+/*            if (!$value->isGoNext() && !$this->isCurrentTemplateLast()) {
                 $isGoNext = false;
-            }
-            $r = $value->generate($isRandom);
+            }*/
+            $r                     = $value->generate($isRandom);
             $replacementArrayTmp[] = $r;
         }
         $replacementArray = $replacementArrayTmp;
 
-        if ($isGoNext) {
+        /*$this->isGoNext = $isGoNext;
+        if ($this->isGoNext) {
             $this->next();
-        }
+        }*/
 
         if ($searchArray) {
             return str_replace($searchArray, $replacementArray, $template);
         }
         return $template;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isAllowGoNext()
+    {
+        return $this->isAllowGoNext;
     }
 
     public function getReplacementCount()
@@ -126,9 +148,28 @@ class Part
         return count($this->template);
     }
 
-    protected function next()
+    public function next()
     {
+        $this->isAllowGoNext = true;
+        $replacementArray = $this->getReplacementArray();
+        foreach ($replacementArray as $value) {
+            if ($value->isCurrentTemplateLast()) {
+
+            }
+            $value->next();
+            if (!$value->isAllowGoNext() || !$value->isCurrentTemplateLast()) {
+                $this->isAllowGoNext = false;
+                print_r('OK' . "\n");
+                break;
+            }
+        }
+        if ($this->isAllowGoNext) {
+            $this->goNext();
+        }
     }
+
+    protected function goNext()
+    {}
 
     /**
      * Является текущий шаблон последним?
@@ -136,7 +177,7 @@ class Part
      */
     public function isCurrentTemplateLast()
     {
-        return true;
+        return $this->currentTemplateKey == $this->lastTemplateKey;
     }
 
     public function getCurrentTemplateKey()
@@ -171,6 +212,7 @@ class Part
      * Set options
      *
      * @param array $options
+     *
      * @return $this
      */
     public function setOptions(array $options)
@@ -186,6 +228,7 @@ class Part
      *
      * @param string $name
      * @param mixed $value
+     *
      * @return $this
      */
     public function setOption($name, $value)
@@ -199,6 +242,7 @@ class Part
      *
      * @param string $key
      * @param mixed $default Default value if key don't exists
+     *
      * @return array|null
      */
     public function getOption($key = null, $default = null)
@@ -214,7 +258,6 @@ class Part
 
     /**
      * Get all options
-     *
      * @return array
      */
     public function getOptions()

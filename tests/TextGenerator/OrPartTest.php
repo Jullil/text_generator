@@ -20,10 +20,9 @@ class OrPartTest extends TestCase
 
         for ($i = 0; $i < 20; $i++) {
             print_r($part->generate());
+            $part->next();
             echo "\n";
         }
-
-        
         //$this->assertEquals('1 2 3 4', $part->generate());
         //$this->assertEquals('1 2 4 3', $part->generate());
         //$this->assertEquals('1 3 4 2', $part->generate());
@@ -38,6 +37,7 @@ class OrPartTest extends TestCase
 
         $part = new OrPart($str);
         $this->assertEquals('1 2 3 4 5 6', $part->generate());
+        $part->next();
         $this->assertEquals('1 2 3 4 6 5', $part->generate());
     }
 

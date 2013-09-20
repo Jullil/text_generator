@@ -23,28 +23,19 @@ class XorPart extends Part
         $this->template         = explode('|', $template['template']);
         $this->replacementArray = $template['replacement_array'];
         $this->templateCount    = count($this->template);
+        $this->lastTemplateKey  = $this->templateCount - 1;
     }
 
     /**
      * Смещает текущий ключ массива
      */
-    public function next()
+    public function goNext()
     {
         $this->currentTemplateKey++;
         if (!isset($this->template[$this->currentTemplateKey])) {
             $this->currentTemplateKey = 0;
         }
     }
-
-    /**
-     * Является текущий шаблон последним?
-     * @return bool
-     */
-    public function isCurrentTemplateLast()
-    {
-        return $this->currentTemplateKey == ($this->templateCount - 1);
-    }
-
 
     /**
      * Returns current template value
